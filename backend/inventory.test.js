@@ -25,6 +25,7 @@ test("scans organizations and attaches site metadata to firewalls only", async (
 
   const firewalls = await scanInventory({
     apiKey: "test-key",
+    apiBaseUrl: "https://api.nebula.zyxel.com/v1/nebula/",
     fetchImpl: async (url, options) => {
       const path = new URL(url).pathname;
       requested.push(path);
@@ -49,4 +50,17 @@ test("scans organizations and attaches site metadata to firewalls only", async (
 
 test("refuses a scan when the API key is missing", async () => {
   await assert.rejects(scanInventory({ apiKey: "" }), { code: "API_KEY_MISSING" });
+});
+
+test("reports a clear error when Nebula returns HTML instead of JSON", async () => {
+  await assert.rejects(
+    scanInventory({
+      apiKey: "test-key",
+      fetchImpl: async () => ({
+        ok: true,
+        json: async () => { throw new SyntaxError("Unexpected token '<'"); },
+      }),
+    }),
+    { code: "INVALID_API_RESPONSE" },
+  );
 });

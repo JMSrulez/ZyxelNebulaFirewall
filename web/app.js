@@ -100,7 +100,12 @@ function render() {
 
 async function requestJson(url, options) {
   const response = await fetch(url, options);
-  const body = await response.json();
+  let body;
+  try {
+    body = await response.json();
+  } catch {
+    throw new Error("Le serveur a renvoyé une page HTML au lieu des données. Vérifiez le routage des requêtes /api/ vers le service backend.");
+  }
   if (!response.ok) throw new Error(body.message || "Une erreur est survenue.");
   return body;
 }

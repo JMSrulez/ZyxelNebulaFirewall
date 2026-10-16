@@ -58,7 +58,14 @@ async function getJson(fetchImpl, baseUrl, path, apiKey) {
 
   if (!response.ok) throw new NebulaApiError(response.status);
 
-  const body = await response.json();
+  let body;
+  try {
+    body = await response.json();
+  } catch {
+    const error = new Error("Nebula API returned a non-JSON response");
+    error.code = "INVALID_API_RESPONSE";
+    throw error;
+  }
   if (!Array.isArray(body) && Number(body?.status) >= 400) {
     throw new NebulaApiError(Number(body.status));
   }
@@ -76,7 +83,7 @@ export async function scanInventory({
     throw error;
   }
 
-  const baseUrl = apiBaseUrl.replace(/\/$/, "");
+  const baseUrl = apiBaseUrl.trim().replace(/\/+$/, "").replace(/\/v1\/nebula$/i, "");
   const organizations = await getJson(fetchImpl, baseUrl, "/v1/nebula/organizations", apiKey);
   const firewalls = [];
 
