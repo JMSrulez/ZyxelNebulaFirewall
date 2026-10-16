@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f3f5f1">
+    <title>Inventaire Nebula | Zyxel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Zyxel Nebula, accueil">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <span class="brand-name">NEBULA <span>/</span> FIREWALLS</span>
+      </a>
+      <div class="topbar-meta"><span class="live-dot" aria-hidden="true"></span><span>INVENTAIRE</span></div>
+    </header>
+
+    <main class="workspace">
+      <section class="page-heading" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">ZYXEL NEBULA CONTROL CENTER</p>
+          <h1 id="page-title">Inventaire des pare-feu</h1>
+        </div>
+        <button class="scan-button" id="scan-button" type="button">
+          <span class="button-glyph" aria-hidden="true">↻</span>
+          <span>Scanner maintenant</span>
+        </button>
+      </section>
+
+      <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
+
+      <section class="metrics" aria-label="Résumé de l'inventaire">
+        <div class="metric metric-primary">
+          <span class="metric-label">Pare-feu détectés</span>
+          <strong class="metric-value" id="firewall-count">—</strong>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Organisations</span>
+          <strong class="metric-value" id="organization-count">—</strong>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Réseaux</span>
+          <strong class="metric-value" id="site-count">—</strong>
+        </div>
+        <div class="metric metric-time">
+          <span class="metric-label">Dernier scan complet</span>
+          <strong class="metric-value metric-date" id="scanned-at">Jamais</strong>
+        </div>
+      </section>
+
+      <section class="inventory-section" aria-labelledby="inventory-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">PÉRIMÈTRE DÉCOUVERT</p>
+            <h2 id="inventory-title">Appareils</h2>
+          </div>
+          <label class="search-field">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <span class="visually-hidden">Filtrer les pare-feu</span>
+            <input id="filter-input" type="search" placeholder="Filtrer l'inventaire" autocomplete="off">
+          </label>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Pare-feu</th>
+                <th scope="col">Modèle</th>
+                <th scope="col">Organisation</th>
+                <th scope="col">Réseau</th>
+                <th scope="col">Numéro de série</th>
+              </tr>
+            </thead>
+            <tbody id="firewall-rows"></tbody>
+          </table>
+          <div class="empty-state" id="empty-state" hidden>
+            <span class="empty-index" aria-hidden="true">—</span>
+            <strong id="empty-title">Aucun inventaire enregistré</strong>
+            <span id="empty-detail">Le premier scan apparaîtra ici.</span>
+          </div>
+        </div>
+      </section>
+
+      <footer class="page-footer">
+        <span>ZYXEL NEBULA</span>
+        <span class="footer-separator" aria-hidden="true">/</span>
+        <span id="visible-count">0 appareil</span>
+      </footer>
+    </main>
+  </body>
+</html>
