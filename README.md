@@ -7,7 +7,7 @@ Application web pour inventorier les pare-feu Zyxel gérés depuis le cloud Nebu
 - Interroger les organisations, réseaux et appareils accessibles avec une clé API Nebula.
 - Afficher les pare-feu Zyxel détectés, regroupés par organisation et réseau.
 - Conserver le dernier inventaire complet dans un fichier local et afficher la date du scan.
-- Suivre l'état VPN, le CPU, la mémoire et les sessions, avec un historique glissant de 48 heures.
+- Suivre la disponibilité cloud, les interfaces WAN, le CPU, la mémoire et les sessions, avec un historique glissant de 48 heures.
 - Servir l'interface derrière Nginx, sans exposer la clé API au navigateur.
 
 ## Démarrage avec Docker
@@ -20,9 +20,9 @@ L'inventaire est mis en cache dans `data/inventory.json`. Un scan est lancé au 
 
 ## Supervision
 
-Le service API collecte l'état des tunnels VPN toutes les minutes et les métriques système (CPU, mémoire et sessions) toutes les cinq minutes. Les données et alertes sont conservées dans `data/monitoring.sqlite` sur les dernières 48 heures ; ce volume doit être accessible en écriture par l'utilisateur du conteneur API.
+Le service API collecte l'état cloud des pare-feu et les états VPN documentés toutes les minutes. Il collecte les ports, les paramètres des interfaces WAN et les métriques système (CPU, mémoire et sessions) toutes les cinq minutes. Les données et alertes sont conservées dans `data/monitoring.sqlite` sur les dernières 48 heures ; ce volume doit être accessible en écriture par l'utilisateur du conteneur API.
 
-Le dashboard affiche l'état de collecte par pare-feu, les alertes actives et les courbes d'historique. Une alerte VPN est confirmée après deux mesures consécutives indiquant une coupure ; une alerte CPU ou mémoire est déclenchée après deux mesures consécutives à 90 % ou plus. Une mesure indisponible ou trop ancienne reste signalée comme telle, sans être considérée saine. En cas de limite API Nebula, les appels sont suspendus temporairement avant reprise.
+Le dashboard affiche la disponibilité cloud, la configuration WAN sans conserver ni montrer les adresses IP, les vitesses de port et les courbes d'historique. Les alertes cloud hors ligne et perte de tous les ports WAN associés nécessitent deux mesures consécutives ; les alertes VPN et CPU/mémoire conservent la même confirmation sur deux mesures. Une valeur de vitesse absente reste inconnue et ne déclenche pas à elle seule une alerte de lien. Une mesure indisponible ou trop ancienne n'est pas considérée saine. En cas de limite API Nebula, les appels sont suspendus temporairement avant reprise.
 
 ## Périmètre actuel
 

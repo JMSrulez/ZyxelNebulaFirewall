@@ -131,6 +131,21 @@ td { border-top: 1px solid #e8ede8; color: #3e4d46; font-size: 12px; padding: 14
 .monitor-value--ok { color: var(--green); }
 .monitor-value--error { color: #a74632; }
 .monitor-value--stale { color: #9a6a19; }
+.vpn-cell { max-width: 300px; white-space: normal; }
+.vpn-tunnel-list { list-style: none; margin: 7px 0 0; padding: 0; }
+.vpn-tunnel-list li { border-top: 1px solid var(--line); line-height: 1.45; padding: 6px 0; }
+.vpn-tunnel-name { color: var(--ink); font-size: 10px; margin-right: 7px; }
+.vpn-tunnel-state { font: 9px var(--mono); }
+.vpn-tunnel-state--up { color: var(--green); }
+.vpn-tunnel-state--down { color: #a74632; }
+.vpn-tunnel-state--unknown { color: #9a6a19; }
+.vpn-tunnel-details { color: var(--muted); display: block; font: 9px var(--mono); margin-top: 3px; }
+.wan-cell { max-width: 280px; white-space: normal; }
+.wan-detail-list { list-style: none; margin: 6px 0 0; padding: 0; }
+.wan-detail-list li { border-top: 1px solid var(--line); line-height: 1.45; padding: 5px 0; }
+.wan-detail-list strong { color: var(--ink); font-size: 10px; margin-right: 7px; }
+.wan-detail-list > li > span:not(.wan-detail-meta) { color: var(--muted); font-size: 10px; }
+.wan-detail-meta { color: var(--muted); display: block; font: 9px var(--mono); margin-top: 3px; }
 tbody tr { animation: row-in 220ms ease both; }
 tbody tr:hover { background: #f7faf7; }
 @keyframes row-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
@@ -171,7 +186,7 @@ tbody tr:hover { background: #f7faf7; }
   .section-heading { align-items: start; flex-direction: column; gap: 15px; }
   .search-field { width: 100%; }
   .table-wrap { min-height: 200px; }
-  table { min-width: 1050px; }
+  table { min-width: 1250px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

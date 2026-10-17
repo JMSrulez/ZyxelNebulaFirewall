@@ -97,6 +97,9 @@ test("serves monitoring and 48h history without upstream calls or exposing crede
     const monitor = new Monitoring({ dataDir });
     monitor.record(firewallKey(firewall), "system", { ok: true, data: { cpu: 20, ram: 30, sessions: 0 } });
     monitor.record(JSON.stringify(["org1", "site1"]), "vpn", { ok: true, data: { tunnels: [] } });
+    monitor.record(firewallKey(firewall), "online", { ok: true, data: { status: "online" } });
+    monitor.record(firewallKey(firewall), "ports", { ok: true, data: { ports: [] } });
+    monitor.record(firewallKey(firewall), "interfaces", { ok: true, data: { wan: [], lan: [] } });
     monitor.close();
     const response = await fetch(`${baseUrl}/api/monitoring`);
     assert.equal(response.status, 200);
@@ -109,6 +112,9 @@ test("serves monitoring and 48h history without upstream calls or exposing crede
     const samples = await history.json();
     assert.equal(samples.system.length, 1);
     assert.equal(samples.vpn.length, 1);
+    assert.equal(samples.online.length, 1);
+    assert.equal(samples.ports.length, 1);
+    assert.equal(samples.interfaces.length, 1);
     assert.equal((await fetch(`${baseUrl}/api/monitoring/history?key=unknown`)).status, 404);
   }, { env: { NEBULA_API_KEY: "secret-key" }, fetchImpl: async () => { assert.fail("Unexpected upstream call"); } });
 });

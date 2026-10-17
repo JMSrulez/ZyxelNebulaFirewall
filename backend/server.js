@@ -90,6 +90,9 @@ export function createApiServer({
           return sendJson(response, 200, {
             system: monitor.history(key),
             vpn: monitor.history(JSON.stringify([firewall.organizationId, firewall.siteId]), "vpn"),
+            online: monitor.history(key, "online"),
+            ports: monitor.history(key, "ports"),
+            interfaces: monitor.history(key, "interfaces"),
           });
         }
         return sendJson(response, 200, monitor.snapshot(firewalls));
