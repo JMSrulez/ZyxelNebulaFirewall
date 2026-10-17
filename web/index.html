@@ -53,6 +53,53 @@
         </div>
       </section>
 
+      <section class="monitoring-section" aria-labelledby="monitoring-title">
+        <div class="section-heading monitoring-heading">
+          <div>
+            <p class="eyebrow">SUPERVISION · 48 H</p>
+            <h2 id="monitoring-title">État des pare-feu</h2>
+          </div>
+          <div class="monitoring-status" id="monitoring-status" role="status" aria-live="polite">Initialisation…</div>
+        </div>
+
+        <div class="alert-panel" aria-labelledby="alerts-title">
+          <div class="alert-heading">
+            <h3 id="alerts-title">Alertes</h3>
+            <span id="alert-count">0 active</span>
+          </div>
+          <ul class="alert-list" id="alert-list">
+            <li class="alert-empty">Chargement de la supervision…</li>
+          </ul>
+        </div>
+
+        <div class="history-panel">
+          <div class="history-heading">
+            <div>
+              <h3>Historique</h3>
+              <p id="history-caption">Mesures conservées sur les dernières 48 heures.</p>
+            </div>
+            <div class="history-controls">
+              <label>
+                <span class="visually-hidden">Pare-feu à afficher</span>
+                <select id="history-device" aria-label="Pare-feu à afficher"></select>
+              </label>
+              <label>
+                <span class="visually-hidden">Mesure à afficher</span>
+                <select id="history-kind" aria-label="Mesure à afficher">
+                  <option value="cpu">CPU</option>
+                  <option value="ram">RAM</option>
+                  <option value="sessions">Sessions</option>
+                  <option value="vpn">Disponibilité VPN</option>
+                </select>
+              </label>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="history-chart" role="img" aria-label="Historique de supervision sur 48 heures"></canvas>
+          </div>
+        </div>
+      </section>
+
       <section class="inventory-section" aria-labelledby="inventory-title">
         <div class="section-heading">
           <div>
@@ -74,6 +121,10 @@
                 <th scope="col">Modèle</th>
                 <th scope="col">Organisation</th>
                 <th scope="col">Réseau</th>
+                <th scope="col">VPN</th>
+                <th scope="col">CPU</th>
+                <th scope="col">RAM</th>
+                <th scope="col">Sessions</th>
                 <th scope="col">Numéro de série</th>
               </tr>
             </thead>

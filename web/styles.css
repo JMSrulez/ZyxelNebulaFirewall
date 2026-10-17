@@ -91,6 +91,31 @@ h2 { font-size: 19px; font-weight: 700; letter-spacing: 0; margin: 0; }
 .metric-primary .metric-value { color: var(--green); }
 .metric-date { font-family: var(--mono); font-size: 15px; font-weight: 400; padding-top: 5px; }
 
+.monitoring-section { border-bottom: 1px solid var(--line-strong); margin-top: 44px; padding-bottom: 32px; }
+.monitoring-heading { margin-bottom: 18px; }
+.monitoring-status { color: var(--muted); font: 10px var(--mono); text-align: right; }
+.monitoring-status[data-state="alert"], .monitoring-status[data-state="error"] { color: #a74632; }
+.monitoring-status[data-state="ok"] { color: var(--green); }
+.alert-panel, .history-panel { background: var(--surface); border: 1px solid var(--line); }
+.alert-panel { margin-bottom: 14px; }
+.alert-heading, .history-heading { align-items: center; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; padding: 14px 17px; }
+.alert-heading h3, .history-heading h3 { font-size: 13px; margin: 0; }
+.alert-heading > span { color: var(--muted); font: 10px var(--mono); }
+.alert-list { list-style: none; margin: 0; padding: 0; }
+.alert-empty, .alert-item { align-items: center; display: flex; gap: 16px; justify-content: space-between; min-height: 40px; padding: 9px 17px; }
+.alert-empty { color: var(--muted); font-size: 11px; }
+.alert-item { border-top: 1px solid #e8ede8; color: #733b2a; font-size: 11px; }
+.alert-item--system { border-left: 3px solid var(--coral); }
+.alert-item--vpn { border-left: 3px solid #d69a35; }
+.alert-item time { color: var(--muted); flex: 0 0 auto; font: 9px var(--mono); }
+.history-heading { align-items: end; }
+.history-heading p { color: var(--muted); font-size: 10px; margin: 5px 0 0; }
+.history-controls { display: flex; gap: 8px; }
+.history-controls select { background: #fff; border: 1px solid var(--line); border-radius: 0; color: var(--ink); font: 11px var(--sans); max-width: 210px; min-height: 34px; padding: 0 25px 0 9px; }
+.history-controls select:focus-visible { outline: 3px solid #e8a28e; outline-offset: 2px; }
+.chart-wrap { height: 218px; padding: 12px 14px 8px; }
+.chart-wrap canvas { display: block; height: 100%; width: 100%; }
+
 .inventory-section { margin-top: 48px; }
 .section-heading { margin-bottom: 17px; }
 .section-heading .eyebrow { margin-bottom: 8px; }
@@ -102,6 +127,10 @@ h2 { font-size: 19px; font-weight: 700; letter-spacing: 0; margin: 0; }
 table { border-collapse: collapse; text-align: left; width: 100%; }
 th { background: #e9eee9; color: #59665f; font-size: 9px; font-weight: 500; letter-spacing: 0.07em; padding: 13px 16px; text-transform: uppercase; white-space: nowrap; }
 td { border-top: 1px solid #e8ede8; color: #3e4d46; font-size: 12px; padding: 14px 16px; white-space: nowrap; }
+.monitor-value { color: var(--muted); font: 10px var(--mono); }
+.monitor-value--ok { color: var(--green); }
+.monitor-value--error { color: #a74632; }
+.monitor-value--stale { color: #9a6a19; }
 tbody tr { animation: row-in 220ms ease both; }
 tbody tr:hover { background: #f7faf7; }
 @keyframes row-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
@@ -130,10 +159,19 @@ tbody tr:hover { background: #f7faf7; }
   .metric-value { font-size: 23px; }
   .metric-date { font-size: 12px; }
   .inventory-section { margin-top: 36px; }
+  .monitoring-section { margin-top: 34px; padding-bottom: 26px; }
+  .monitoring-heading { align-items: start; }
+  .monitoring-status { max-width: 46%; line-height: 1.5; }
+  .alert-item { align-items: start; flex-direction: column; gap: 5px; }
+  .history-heading { align-items: start; flex-direction: column; gap: 13px; }
+  .history-controls { width: 100%; }
+  .history-controls label { flex: 1; min-width: 0; }
+  .history-controls select { max-width: 100%; width: 100%; }
+  .chart-wrap { height: 190px; padding-left: 8px; padding-right: 8px; }
   .section-heading { align-items: start; flex-direction: column; gap: 15px; }
   .search-field { width: 100%; }
   .table-wrap { min-height: 200px; }
-  table { min-width: 700px; }
+  table { min-width: 1050px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
