@@ -20,6 +20,12 @@ L'inventaire est mis en cache dans `data/inventory.json`. Un scan est lancé au 
 
 ## Supervision
 
+### Langue du dashboard
+
+Le dashboard utilise le français si la langue principale du navigateur est française, et l'anglais dans les autres cas. Le sélecteur FR/EN change immédiatement les libellés, dates et messages ; ce choix est conservé localement dans le navigateur et devient prioritaire sur la détection automatique. La collecte et les données enregistrées ne sont pas modifiées.
+
+Les tests de langue s'exécutent avec `node --test web/i18n.test.cjs` depuis la racine du projet.
+
 Le service API collecte l'état cloud des pare-feu et les états VPN documentés toutes les minutes. Il collecte les ports, les paramètres des interfaces WAN et les métriques système (CPU, mémoire et sessions) toutes les cinq minutes. Les données et alertes sont conservées dans `data/monitoring.sqlite` sur les dernières 48 heures ; ce volume doit être accessible en écriture par l'utilisateur du conteneur API.
 
 Le dashboard affiche la disponibilité cloud, la configuration WAN sans conserver ni montrer les adresses IP, les vitesses de port et les courbes d'historique. Les alertes cloud hors ligne et perte de tous les ports WAN associés nécessitent deux mesures consécutives ; les alertes VPN et CPU/mémoire conservent la même confirmation sur deux mesures. Une valeur de vitesse absente reste inconnue et ne déclenche pas à elle seule une alerte de lien. Une mesure indisponible ou trop ancienne n'est pas considérée saine. En cas de limite API Nebula, les appels sont suspendus temporairement avant reprise.

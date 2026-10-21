@@ -1,3 +1,4 @@
+const { t } = NebulaI18n;
 const elements = {
   scanButton: document.querySelector("#scan-button"),
   notice: document.querySelector("#notice"),
@@ -23,15 +24,18 @@ const elements = {
 let inventory = { firewalls: [], scannedAt: null };
 let monitoring = { devices: [], alerts: [], generatedAt: null };
 let historyCache = { key: null, loadedAt: 0, value: null };
+let noticeMessage = "";
+let monitoringError = "";
 
 function showNotice(message) {
-  elements.notice.textContent = message;
+  noticeMessage = message;
+  elements.notice.textContent = t(message);
   elements.notice.hidden = !message;
 }
 
 function formattedDate(value) {
-  if (!value) return "Jamais";
-  return new Intl.DateTimeFormat("fr-FR", {
+  if (!value) return t("Jamais");
+  return new Intl.DateTimeFormat(NebulaI18n.language === "fr" ? "fr-FR" : "en-GB", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
@@ -48,10 +52,10 @@ function addDeviceCell(row, firewall) {
   const cell = document.createElement("td");
   const name = document.createElement("span");
   name.className = "device-name";
-  name.textContent = firewall.name || firewall.model || "Pare-feu Zyxel";
+  name.textContent = firewall.name || firewall.model || t("Pare-feu Zyxel");
   const id = document.createElement("span");
   id.className = "device-id";
-  id.textContent = firewall.id || "Identifiant indisponible";
+  id.textContent = firewall.id || t("Identifiant indisponible");
   cell.append(name, id);
   row.append(cell);
 }
@@ -66,12 +70,12 @@ function addSerialCell(row, firewall) {
 }
 
 function monitoringLabel(state) {
-  return ({
+  return t(({
     ok: "À jour",
     pending: "En attente",
     stale: "Ancienne",
     error: "Erreur",
-  })[state] || "Inconnue";
+  })[state] || "Inconnue");
 }
 
 function addMetricCell(row, value, state, unit = "") {
@@ -81,18 +85,18 @@ function addMetricCell(row, value, state, unit = "") {
   const displayState = available ? state : state === "ok" ? "stale" : state;
   const displayValue = typeof value === "number" && !Number.isInteger(value) ? Number(value.toFixed(1)) : value;
   badge.className = `monitor-value monitor-value--${displayState || "pending"}`;
-  badge.textContent = available ? `${displayValue}${unit}` : state === "ok" ? "Indisponible" : monitoringLabel(state);
+  badge.textContent = available ? `${displayValue}${unit}` : state === "ok" ? t("Indisponible") : monitoringLabel(state);
   cell.append(badge);
   row.append(cell);
 }
 
 function formattedUptime(seconds) {
-  if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds < 0) return "Indisponible";
+  if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds < 0) return t("Indisponible");
   const minutes = Math.floor(seconds / 60);
   const days = Math.floor(minutes / 1440);
   const hours = Math.floor((minutes % 1440) / 60);
   const remainder = minutes % 60;
-  if (days) return `${days} j ${hours} h`;
+  if (days) return t("{days} j {hours} h", { days, hours });
   if (hours) return `${hours} h ${remainder} min`;
   return `${remainder} min`;
 }
@@ -112,10 +116,10 @@ function addVpnCell(row, sample) {
   let label = monitoringLabel(state);
   let tone = state;
   if (state === "ok") {
-    if (!tunnels.length) label = "Aucun tunnel remonté";
-    else if (down) { label = `${up}/${tunnels.length} actif(s)`; tone = "error"; }
-    else if (up === tunnels.length) label = `${up} actif(s)`;
-    else { label = "État inconnu"; tone = "stale"; }
+    if (!tunnels.length) label = t("Aucun tunnel remonté");
+    else if (down) { label = t("{count} actif(s)", { count: `${up}/${tunnels.length}` }); tone = "error"; }
+    else if (up === tunnels.length) label = t("{count} actif(s)", { count: up });
+    else { label = t("État inconnu"); tone = "stale"; }
   }
   const cell = document.createElement("td");
   cell.className = "vpn-cell";
@@ -130,14 +134,14 @@ function addVpnCell(row, sample) {
       const item = document.createElement("li");
       const name = document.createElement("strong");
       name.className = "vpn-tunnel-name";
-      name.textContent = tunnel.peer || tunnel.name || `Tunnel ${index + 1}`;
+      name.textContent = tunnel.peer === "Non identifié" ? t("Non identifié") : tunnel.peer || tunnel.name || `Tunnel ${index + 1}`;
       const status = document.createElement("span");
       status.className = `vpn-tunnel-state vpn-tunnel-state--${tunnel.state || "unknown"}`;
-      status.textContent = tunnel.state === "up" ? "Actif" : tunnel.state === "down" ? "Coupé" : "Inconnu";
+      status.textContent = t(tunnel.state === "up" ? "Actif" : tunnel.state === "down" ? "Coupé" : "Inconnu");
       const details = document.createElement("span");
       details.className = "vpn-tunnel-details";
       const heartbeat = heartbeatDate(tunnel.lastHeartbeat);
-      details.textContent = `Uptime ${formattedUptime(tunnel.uptime)} · Heartbeat ${heartbeat ? formattedDate(heartbeat) : "indisponible"}`;
+      details.textContent = `Uptime ${formattedUptime(tunnel.uptime)} · Heartbeat ${heartbeat ? formattedDate(heartbeat) : t("indisponible")}`;
       item.append(name, status, details);
       list.append(item);
     });
@@ -151,7 +155,7 @@ function addOnlineCell(row, sample) {
   const status = sample?.data?.status;
   const label = state !== "ok"
     ? monitoringLabel(state)
-    : status === "online" ? "En ligne" : status === "offline" ? "Hors ligne" : "Inconnu";
+    : t(status === "online" ? "En ligne" : status === "offline" ? "Hors ligne" : "Inconnu");
   const tone = state !== "ok" ? state : status === "online" ? "ok" : status === "offline" ? "error" : "stale";
   addMetricCell(row, label, tone);
 }
@@ -164,18 +168,18 @@ function addWanCell(row, portsSample, interfacesSample) {
   if (interfacesSample?.state !== "ok") {
     const line = document.createElement("span");
     line.className = `monitor-value monitor-value--${interfacesSample?.state || "pending"}`;
-    line.textContent = `Interfaces : ${monitoringLabel(interfacesSample?.state)}`;
+    line.textContent = t("Interfaces : {state}", { state: monitoringLabel(interfacesSample?.state) });
     cell.append(line);
   } else if (!settings?.length) {
     const line = document.createElement("span");
     line.className = "monitor-value monitor-value--stale";
-    line.textContent = "Aucune interface WAN remontée";
+    line.textContent = t("Aucune interface WAN remontée");
     cell.append(line);
   } else {
     const enabledCount = settings.filter(item => item.enabled === true).length;
     const summary = document.createElement("span");
     summary.className = "monitor-value monitor-value--ok";
-    summary.textContent = `${enabledCount}/${settings.length} interface(s) activée(s)`;
+    summary.textContent = t("{count} interface(s) activée(s)", { count: `${enabledCount}/${settings.length}` });
     cell.append(summary);
     const list = document.createElement("ul");
     list.className = "wan-detail-list";
@@ -184,17 +188,20 @@ function addWanCell(row, portsSample, interfacesSample) {
       const name = document.createElement("strong");
       name.textContent = setting.name || setting.portGroupId || "WAN";
       const enabled = document.createElement("span");
-      enabled.textContent = setting.enabled === true ? "Activée" : setting.enabled === false ? "Désactivée" : "État inconnu";
+      enabled.textContent = t(setting.enabled === true ? "Activée" : setting.enabled === false ? "Désactivée" : "État inconnu");
       const address = document.createElement("span");
       address.className = "wan-detail-meta";
-      address.textContent = `IPv4 ${setting.hasAddress ? "présente" : "non remontée"} · passerelle ${setting.hasGateway ? "présente" : "non remontée"}`;
+      address.textContent = t("IPv4 {address} · passerelle {gateway}", {
+        address: t(setting.hasAddress ? "présente" : "non remontée"),
+        gateway: t(setting.hasGateway ? "présente" : "non remontée"),
+      });
       item.append(name, enabled, address);
       const matchingPorts = (ports || []).filter(port => setting.portGroupId && port.portGroup === setting.portGroupId);
       if (portsSample?.state === "ok" && matchingPorts.length) {
         for (const port of matchingPorts) {
           const link = document.createElement("span");
           link.className = `wan-detail-meta monitor-value--${port.linkState === "up" ? "ok" : port.linkState === "down" ? "error" : "stale"}`;
-          link.textContent = `Port ${port.portNumber || "?"} · ${port.linkSpeed || "lien inconnu"}`;
+          link.textContent = `Port ${port.portNumber || "?"} · ${port.linkSpeed || t("lien inconnu")}`;
           item.append(link);
         }
       }
@@ -205,7 +212,7 @@ function addWanCell(row, portsSample, interfacesSample) {
   if (portsSample?.state !== "ok") {
     const line = document.createElement("span");
     line.className = `wan-detail-meta monitor-value--${portsSample?.state || "pending"}`;
-    line.textContent = `État des ports : ${monitoringLabel(portsSample?.state)}`;
+    line.textContent = t("État des ports : {state}", { state: monitoringLabel(portsSample?.state) });
     cell.append(line);
   }
   row.append(cell);
@@ -213,12 +220,12 @@ function addWanCell(row, portsSample, interfacesSample) {
 
 function renderAlerts() {
   const active = monitoring.alerts.filter((alert) => !alert.resolved);
-  elements.alertCount.textContent = `${active.length} active${active.length === 1 ? "" : "s"}`;
+  elements.alertCount.textContent = t(active.length === 1 ? "{count} active" : "{count} actives", { count: active.length });
   elements.alertList.replaceChildren();
   if (!active.length) {
     const item = document.createElement("li");
     item.className = "alert-empty";
-    item.textContent = "Aucune alerte active.";
+    item.textContent = t("Aucune alerte active.");
     elements.alertList.append(item);
     return;
   }
@@ -226,9 +233,9 @@ function renderAlerts() {
     const item = document.createElement("li");
     item.className = `alert-item alert-item--${alert.kind === "vpn" ? "vpn" : "system"}`;
     const message = document.createElement("span");
-    message.textContent = alert.message;
+    message.textContent = t(alert.message);
     const time = document.createElement("time");
-    time.textContent = alert.updated ? formattedDate(alert.updated) : "En attente";
+    time.textContent = alert.updated ? formattedDate(alert.updated) : t("En attente");
     item.append(message, time);
     elements.alertList.append(item);
   }
@@ -287,7 +294,7 @@ function drawHistory() {
     context.stroke();
     context.fillText(key === "sessions" ? String(Math.round(range * step)) : `${Math.round(step * 100)}%`, 5, y);
   }
-  const labels = ["48 h", "24 h", "Maintenant"];
+  const labels = ["48 h", "24 h", t("Maintenant")];
   labels.forEach((label, index) => {
     context.textAlign = index === 0 ? "left" : index === labels.length - 1 ? "right" : "center";
     context.fillText(label, left + (right - left) * index / 2, height - 11);
@@ -323,11 +330,11 @@ function drawHistory() {
   if (points.length < 2) {
     context.fillStyle = ink;
     context.textAlign = "center";
-    context.fillText(points.length ? "Une seule mesure disponible" : "Aucune mesure disponible sur cette période", width / 2, height / 2);
+    context.fillText(t(points.length ? "Une seule mesure disponible" : "Aucune mesure disponible sur cette période"), width / 2, height / 2, Math.max(1, right - left));
     context.textAlign = "start";
   }
-  const sampleLabel = key === "vpn" ? "Tunnels actifs" : key === "online" ? "Disponibilité cloud" : key === "wan" ? "Liens WAN actifs" : key === "sessions" ? "Sessions" : `${key.toUpperCase()} (%)`;
-  elements.historyCaption.textContent = `${sampleLabel} · ${samples.length} mesure(s) sur 48 h`;
+  const sampleLabel = t(key === "vpn" ? "Tunnels actifs" : key === "online" ? "Disponibilité cloud" : key === "wan" ? "Liens WAN actifs" : key === "sessions" ? "Sessions" : `${key.toUpperCase()} (%)`);
+  elements.historyCaption.textContent = t("{label} · {count} mesure(s) sur 48 h", { label: sampleLabel, count: samples.length });
 }
 
 async function refreshHistory(force = false) {
@@ -346,38 +353,51 @@ async function refreshHistory(force = false) {
 async function refreshMonitoring() {
   try {
     monitoring = await requestJson("/api/monitoring");
-    const active = monitoring.alerts.filter((alert) => !alert.resolved).length;
-    elements.monitoringStatus.textContent = `${active ? `${active} alerte(s)` : "Aucune alerte"} · Mis à jour ${formattedDate(monitoring.generatedAt)}`;
-    elements.monitoringStatus.dataset.state = active ? "alert" : "ok";
-    renderAlerts();
+    monitoringError = "";
+    renderMonitoringStatus();
     renderHistoryOptions();
     render();
     await refreshHistory();
   } catch (error) {
-    elements.monitoringStatus.textContent = "Supervision indisponible · vérifier le service API";
+    monitoringError = error.message;
+    renderMonitoringStatus();
+  }
+}
+
+function renderMonitoringStatus() {
+  if (monitoringError) {
+    elements.monitoringStatus.textContent = t("Supervision indisponible · vérifier le service API");
     elements.monitoringStatus.dataset.state = "error";
     elements.alertList.replaceChildren();
     const item = document.createElement("li");
     item.className = "alert-empty";
-    item.textContent = error.message;
+    item.textContent = t(monitoringError);
     elements.alertList.append(item);
+  } else if (monitoring.generatedAt) {
+    const active = monitoring.alerts.filter((alert) => !alert.resolved).length;
+    elements.monitoringStatus.textContent = t("{status} · Mis à jour {date}", {
+      status: active ? t("{count} alerte(s)", { count: active }) : t("Aucune alerte"),
+      date: formattedDate(monitoring.generatedAt),
+    });
+    elements.monitoringStatus.dataset.state = active ? "alert" : "ok";
+    renderAlerts();
   }
 }
 
 function render() {
   const organizations = new Set(inventory.firewalls.map((item) => item.organizationId));
   const sites = new Set(inventory.firewalls.map((item) => `${item.organizationId}:${item.siteId}`));
-  const query = elements.filterInput.value.trim().toLocaleLowerCase("fr");
+  const query = elements.filterInput.value.trim().toLocaleLowerCase(NebulaI18n.language);
   const visibleFirewalls = inventory.firewalls.filter((firewall) =>
     [firewall.name, firewall.id, firewall.model, firewall.organizationName, firewall.siteName, firewall.serialNumber, firewall.macAddress]
-      .some((value) => String(value || "").toLocaleLowerCase("fr").includes(query)),
+      .some((value) => String(value || "").toLocaleLowerCase(NebulaI18n.language).includes(query)),
   );
 
   elements.firewallCount.textContent = String(inventory.firewalls.length);
   elements.organizationCount.textContent = String(organizations.size);
   elements.siteCount.textContent = String(sites.size);
   elements.scannedAt.textContent = formattedDate(inventory.scannedAt);
-  elements.visibleCount.textContent = `${visibleFirewalls.length} ${visibleFirewalls.length === 1 ? "appareil" : "appareils"}`;
+  elements.visibleCount.textContent = t(visibleFirewalls.length === 1 ? "{count} appareil" : "{count} appareils", { count: visibleFirewalls.length });
   elements.rows.replaceChildren();
   const deviceStatus = new Map(monitoring.devices.map((device) => [device.key, device]));
 
@@ -403,14 +423,14 @@ function render() {
   const showEmpty = visibleFirewalls.length === 0;
   elements.emptyState.hidden = !showEmpty;
   if (showEmpty && query) {
-    elements.emptyTitle.textContent = "Aucun résultat";
-    elements.emptyDetail.textContent = "Aucun pare-feu ne correspond à ce filtre.";
+    elements.emptyTitle.textContent = t("Aucun résultat");
+    elements.emptyDetail.textContent = t("Aucun pare-feu ne correspond à ce filtre.");
   } else if (showEmpty && inventory.scannedAt) {
-    elements.emptyTitle.textContent = "Aucun pare-feu détecté";
-    elements.emptyDetail.textContent = "Aucun appareil de type firewall n'a été trouvé.";
+    elements.emptyTitle.textContent = t("Aucun pare-feu détecté");
+    elements.emptyDetail.textContent = t("Aucun appareil de type firewall n'a été trouvé.");
   } else {
-    elements.emptyTitle.textContent = "Aucun inventaire enregistré";
-    elements.emptyDetail.textContent = "Le premier scan apparaîtra ici.";
+    elements.emptyTitle.textContent = t("Aucun inventaire enregistré");
+    elements.emptyDetail.textContent = t("Le premier scan apparaîtra ici.");
   }
 }
 
@@ -444,6 +464,15 @@ async function scan() {
 }
 
 async function start() {
+  for (const button of document.querySelectorAll("[data-language]")) {
+    button.addEventListener("click", () => {
+      NebulaI18n.setLanguage(button.dataset.language);
+      render();
+      renderMonitoringStatus();
+      showNotice(noticeMessage);
+      drawHistory();
+    });
+  }
   elements.scanButton.addEventListener("click", scan);
   elements.filterInput.addEventListener("input", render);
   elements.historyDevice.addEventListener("change", () => { void refreshHistory(true).catch(() => drawHistory()); });

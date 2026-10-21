@@ -52,6 +52,12 @@ body {
 .brand-name span { color: #88a89a; padding: 0 4px; }
 .topbar-meta { align-items: center; color: #b6c9bd; display: flex; font-size: 10px; gap: 9px; letter-spacing: 0.12em; }
 .live-dot { background: #7ac59e; border-radius: 50%; height: 7px; width: 7px; }
+.topbar-actions { align-items: center; display: flex; gap: 18px; }
+.language-switch { display: flex; border: 1px solid #66736d; }
+.language-switch button { background: transparent; border: 0; color: #dce3dd; cursor: pointer; font: 11px var(--mono); width: 34px; height: 30px; }
+.language-switch button[aria-pressed="true"] { background: var(--green-soft); color: var(--ink); }
+.language-switch button:focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
+@media (max-width: 420px) { .topbar-actions .topbar-meta { display: none; } }
 
 .workspace { margin: 0 auto; max-width: 1320px; padding: 54px clamp(20px, 5.4vw, 82px) 28px; }
 .page-heading, .section-heading { align-items: end; display: flex; justify-content: space-between; }
